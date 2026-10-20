@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>BranchBoard — local workspace</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header>
+      <strong>BranchBoard</strong
+      ><span>LOCAL WORKSPACE · FICTIONAL SAMPLE</span>
+    </header>
+    <main>
+      <div class="intro">
+        <div>
+          <p class="kicker">A considered workspace</p>
+          <h1>A clear path from blocked to done.</h1>
+          <p class="sub">
+            Plan dependencies, review blockers, and move work without losing
+            context.
+          </p>
+        </div>
+        <div class="row">
+          <button id="new">New sample</button
+          ><button id="save" class="primary">Save document</button>
+        </div>
+      </div>
+      <div id="error" class="notice error" role="alert" hidden></div>
+      <div id="status" class="notice" role="status" hidden></div>
+      <div class="app">
+        <aside>
+          <section class="card stack">
+            <h2>Document</h2>
+            <strong id="document-title"></strong
+            ><span id="revision" class="muted">Unsaved sample</span
+            ><button id="settings">Edit settings</button
+            ><label
+              >Saved documents<select id="library">
+                <option value="">Select a document</option>
+              </select></label
+            ><button id="open">Open document</button>
+            <p class="muted">
+              Saved locally in SQLite. Export JSON for a portable copy. A stale
+              save is rejected rather than overwriting another tab.
+            </p>
+          </section>
+          <section class="card stack">
+            <h2>Import & export</h2>
+            <label
+              >Import document JSON<input
+                id="import"
+                type="file"
+                accept=".json" /></label
+            ><button id="export">Export document JSON</button
+            ><button id="visual-export" hidden>Export artwork SVG</button
+            ><button id="print">Print workspace</button>
+            <p class="muted">
+              Synthetic fixtures. No account, remote upload, or telemetry.
+            </p>
+          </section>
+        </aside>
+        <section>
+          <div id="metrics" class="metrics"></div>
+          <section class="card">
+            <div class="heading">
+              <h2 id="workspace-title">Your workspace</h2>
+              <div class="row">
+                <button id="undo" disabled>Undo</button
+                ><button id="redo" disabled>Redo</button
+                ><button id="add" class="primary">Add entry</button>
+              </div>
+            </div>
+            <div id="tools" class="toolbar no-print"></div>
+          </section>
+          <div id="workspace"></div>
+        </section>
+      </div>
+      <footer>
+        BranchBoard · Python + SQLite + JavaScript · See README for supported
+        behavior and limitations.
+      </footer>
+    </main>
+    <dialog id="editor" aria-labelledby="editor-title">
+      <form id="editor-form">
+        <h2 id="editor-title">Edit entry</h2>
+        <div id="dialog-error" class="notice error" role="alert" hidden></div>
+        <div id="fields" class="fields"></div>
+        <div class="row">
+          <button type="button" id="cancel">Cancel</button
+          ><button class="primary" id="apply" type="submit">
+            Apply changes
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <script src="/app.js" defer></script>
+  </body>
+</html>

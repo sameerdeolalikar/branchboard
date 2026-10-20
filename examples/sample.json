@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "title": "Workshop exhibition",
+  "tasks": [
+    {
+      "id": "brief",
+      "title": "Define the collection",
+      "status": "done",
+      "priority": "high",
+      "depends": [],
+      "note": "Fictional exhibit planning."
+    },
+    {
+      "id": "layout",
+      "title": "Sketch the room layout",
+      "status": "active",
+      "priority": "high",
+      "depends": [
+        "brief"
+      ],
+      "note": "Keep the entrance clear."
+    },
+    {
+      "id": "labels",
+      "title": "Write object labels",
+      "status": "backlog",
+      "priority": "normal",
+      "depends": [
+        "brief"
+      ],
+      "note": "Use original fictional objects."
+    },
+    {
+      "id": "print",
+      "title": "Print the exhibition guide",
+      "status": "backlog",
+      "priority": "normal",
+      "depends": [
+        "layout",
+        "labels"
+      ],
+      "note": "Review before printing."
+    },
+    {
+      "id": "install",
+      "title": "Install the display",
+      "status": "backlog",
+      "priority": "high",
+      "depends": [
+        "print"
+      ],
+      "note": "Check the final arrangement."
+    },
+    {
+      "id": "stock",
+      "title": "Count spare materials",
+      "status": "backlog",
+      "priority": "low",
+      "depends": [],
+      "note": "A separate preparation task."
+    }
+  ]
+}
