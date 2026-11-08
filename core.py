@@ -39,7 +39,8 @@ def validate(raw):
     for x in items(raw,"tasks"):
         deps=x.get("depends",[])
         if not isinstance(deps,list) or any(not isinstance(v,str) for v in deps) or len(set(deps))!=len(deps):raise ValueError("Dependencies must be unique identifiers.")
-        out["tasks"].append({"id":x["id"],"title":text(x.get("title"),"Task title"),"status":choice(x.get("status"),["backlog","active","done"],"status"),"priority":choice(x.get("priority"),["low","normal","high"],"priority"),"depends":deps,"note":text(x.get("note") or "—","Note",1000)})
+        note = x.get("note", "")
+        out["tasks"].append({"id":x["id"],"title":text(x.get("title"),"Task title"),"status":choice(x.get("status"),["backlog","active","done"],"status"),"priority":choice(x.get("priority"),["low","normal","high"],"priority"),"depends":deps,"note":text("—" if note == "" else note,"Note",1000)})
     lookup={x["id"]:x for x in out["tasks"]};visiting=set();done=set()
     def visit(key):
         if key in visiting:raise ValueError("Dependency cycle detected.")

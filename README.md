@@ -45,6 +45,8 @@ This is a single-user local board, not a collaborative service. Dependencies are
 
 Documents have at most 150 entries; the library supports 100 documents. Request/import size is bounded to 256 KB. Undo/redo is per-tab memory, not durable history. Export drafts before closing; there is no automatic crash recovery yet. Optimistic revisions reject stale saves, but merging conflicts is future work.
 
+Task notes must be strings of at most 1,000 characters. Omitted notes and empty strings become “—”; whitespace-only notes and non-string values (including `null`) are rejected without replacing the current document.
+
 ## Planned development
 
 [ROADMAP.md](ROADMAP.md) specifies approximately **62–92 hours** of proposed work with acceptance criteria. [QUALITY-PLAN.md](QUALITY-PLAN.md) describes representative review dimensions and transition cases. Estimates are future engineering effort, not completed hours or promised paid work. [CONTRIBUTING.md](CONTRIBUTING.md) explains contribution conventions.

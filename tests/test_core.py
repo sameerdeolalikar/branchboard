@@ -32,6 +32,37 @@ class Tests(unittest.TestCase):
             store=Store(Path(tmp)/"library.sqlite3");first=store.save({"revision":0,"document":self.fresh()})
             with self.assertRaises(ValueError):store.save({**first,"document":{"version":2}})
             self.assertEqual(store.get(first["id"]),first)
+    def test_invalid_notes_preserve_saved_document_and_allow_retry(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = Store(Path(tmp) / "library.sqlite3")
+            first = store.save({"revision": 0, "document": self.fresh()})
+            for note in [None, False, True, 0, 1, [], ["note"], {}, {"text": "note"}]:
+                with self.subTest(note=note):
+                    draft = copy.deepcopy(first)
+                    draft["document"]["tasks"][0]["note"] = note
+                    with self.assertRaisesRegex(ValueError, "Note"):
+                        store.save(draft)
+                    self.assertEqual(store.get(first["id"]), first)
+            draft = copy.deepcopy(first)
+            draft["document"]["tasks"][0]["note"] = "Revised note"
+            saved = store.save(draft)
+            self.assertEqual(saved["revision"], 2)
+            self.assertEqual(Store(store.path).get(first["id"]), saved)
+            self.assertEqual(saved["document"]["tasks"][0]["note"], "Revised note")
+
+    def test_optional_and_text_notes(self):
+        for note in ["", "A note", "  Trimmed note  ", "n" * 1000]:
+            with self.subTest(note=note):
+                draft = self.fresh()
+                draft["tasks"][0]["note"] = note
+                self.assertEqual(validate(draft)["tasks"][0]["note"], note.strip() or "—")
+        draft = self.fresh()
+        del draft["tasks"][0]["note"]
+        self.assertEqual(validate(draft)["tasks"][0]["note"], "—")
+        for note in [" " * 3, "n" * 1001]:
+            draft["tasks"][0]["note"] = note
+            with self.assertRaisesRegex(ValueError, "Note"):
+                validate(draft)
     def test_cycles_rejected(self):
         d=self.fresh();d["tasks"][0]["depends"]=["print"]
         with self.assertRaisesRegex(ValueError,"cycle"):validate(d)

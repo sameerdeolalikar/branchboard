@@ -133,6 +133,17 @@ try {
   await page.locator("#error:not([hidden])").waitFor();
   await ready();
   assert.deepEqual(await exported(), expected);
+  const invalidNote = structuredClone(expected);
+  invalidNote.tasks[0].note = false;
+  await page.setInputFiles("#import", {
+    name: "invalid-note.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(invalidNote)),
+  });
+  await page.locator("#error:not([hidden])").waitFor();
+  assert.match(await page.textContent("#error"), /Note/);
+  await ready();
+  assert.deepEqual(await exported(), expected);
   await page.setInputFiles("#import", "examples/sample.json");
   await page.waitForFunction(
     () =>
