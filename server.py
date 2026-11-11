@@ -18,7 +18,7 @@ class Store:
     def save(self,raw):
         doc=validate(raw.get("document"));rev=raw.get("revision");key=raw.get("id")
         if type(rev) is not int or rev<0:raise ValueError("Invalid revision.")
-        if key is not None and not isinstance(key,str):raise ValueError("Invalid document ID.")
+        if key is not None and (not isinstance(key,str) or not key):raise ValueError("Invalid document ID.")
         with sqlite3.connect(self.path) as c:
             c.execute("BEGIN IMMEDIATE")
             if key:

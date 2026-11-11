@@ -32,6 +32,26 @@ class Tests(unittest.TestCase):
             store=Store(Path(tmp)/"library.sqlite3");first=store.save({"revision":0,"document":self.fresh()})
             with self.assertRaises(ValueError):store.save({**first,"document":{"version":2}})
             self.assertEqual(store.get(first["id"]),first)
+    def test_empty_document_id_preserves_library_and_allows_retry(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = Store(Path(tmp) / "library.sqlite3")
+            first = store.save({"revision": 0, "document": self.fresh()})
+            before = store.list()
+            for revision in [0, first["revision"]]:
+                with self.subTest(revision=revision):
+                    with self.assertRaisesRegex(ValueError, "Invalid document ID"):
+                        store.save({**first, "id": "", "revision": revision})
+                    self.assertEqual(store.list(), before)
+                    self.assertEqual(store.get(first["id"]), first)
+            updated = store.save(first)
+            self.assertEqual(updated["id"], first["id"])
+            self.assertEqual(updated["revision"], 2)
+            self.assertEqual(Store(store.path).get(first["id"]), updated)
+            created = store.save({"id": None, "revision": 0, "document": self.fresh()})
+            self.assertNotEqual(created["id"], first["id"])
+            self.assertEqual(created["revision"], 1)
+            self.assertEqual(len(store.list()), 2)
+
     def test_invalid_notes_preserve_saved_document_and_allow_retry(self):
         with tempfile.TemporaryDirectory() as tmp:
             store = Store(Path(tmp) / "library.sqlite3")
