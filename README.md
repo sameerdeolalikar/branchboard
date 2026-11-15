@@ -43,6 +43,8 @@ Browser tests use Node.js 20+ and pinned Playwright. They create synthetic saved
 
 This is a single-user local board, not a collaborative service. Dependencies are entered by stable IDs; there is no graph editor, nested task hierarchy, scheduling engine or multi-selection yet. Reopening a prerequisite is rejected while a dependent task is active or done. Removing referenced tasks is rejected. Undo keeps the last 50 successful document edits in this browser session.
 
+Dropping a task into its current column or dropping text that does not identify a task leaves the document and undo/redo history unchanged.
+
 Documents have at most 150 entries; the library supports 100 documents. Request/import size is bounded to 256 KB. Undo/redo is per-tab memory, not durable history. Export drafts before closing; there is no automatic crash recovery yet. Optimistic revisions reject stale saves, but merging conflicts is future work.
 
 New library saves omit the document ID or use `null`, with revision zero. An empty-string ID is rejected without creating a document or changing existing saved data.

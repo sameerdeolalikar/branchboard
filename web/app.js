@@ -406,6 +406,8 @@ function domainTools(tools) {
   );
 }
 function moveTask(key, status) {
+  const current = doc.tasks.find((t) => t.id === key);
+  if (!current || current.status === status) return;
   task("Checking dependencies…", () =>
     change({
       ...doc,

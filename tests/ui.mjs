@@ -74,8 +74,34 @@ try {
     (await exported()).tasks.find((x) => x.id === "print").status,
     "backlog",
   );
-  await page.click("#redo");
+  const beforeDrop = await exported();
+  const backlog = page.locator('.lane[data-status="backlog"]');
+  await blocked.dragTo(backlog.locator("h2"));
   await ready();
+  assert.equal(
+    await page.locator("#redo").isEnabled(), true,
+    "Dropping into the current column preserves redo",
+  );
+  const unrelatedDrop = await page.evaluateHandle(() => {
+    const data = new DataTransfer();
+    data.setData("text/plain", "not-a-task");
+    return data;
+  });
+  await backlog.dispatchEvent("drop", { dataTransfer: unrelatedDrop });
+  await unrelatedDrop.dispose();
+  await ready();
+  assert.equal(
+    await page.locator("#redo").isEnabled(), true,
+    "Dropping unrelated text preserves redo",
+  );
+  assert.deepEqual(await exported(), beforeDrop);
+  await page.locator("#redo").focus();
+  await page.keyboard.press("Enter");
+  await ready();
+  assert.equal(
+    (await exported()).tasks.find((x) => x.id === "print").status,
+    "active",
+  );
   await page.fill("#search", "spare");
   assert.equal(await page.locator(".task").count(), 1);
   await page.fill("#search", "");
