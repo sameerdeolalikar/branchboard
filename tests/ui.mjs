@@ -75,6 +75,16 @@ try {
     "backlog",
   );
   const beforeDrop = await exported();
+  await page.getByRole("button", { name: "Edit Print the exhibition guide", exact: true }).click();
+  await page.fill("#field-title", "  Print the exhibition guide  ");
+  await apply();
+  assert.equal(await page.locator("#redo").isEnabled(), true,
+    "Applying an equivalent task edit preserves redo");
+  assert.deepEqual(await exported(), beforeDrop);
+  await page.click("#settings");
+  await apply();
+  assert.equal(await page.locator("#redo").isEnabled(), true,
+    "Applying unchanged settings preserves redo");
   const backlog = page.locator('.lane[data-status="backlog"]');
   await blocked.dragTo(backlog.locator("h2"));
   await ready();
@@ -125,6 +135,19 @@ try {
       document.getElementById("status").textContent ===
       "Saved document opened.",
   );
+  assert.deepEqual(await exported(), expected);
+  await page.click("#settings");
+  await apply();
+  assert.equal(await page.locator("#undo").isEnabled(), false,
+    "Unchanged settings do not create an undo entry");
+  assert.equal(await page.textContent("#revision"), "Saved revision 1");
+  await page.click("#settings");
+  await page.fill("#field-title", "Updated board title");
+  await apply();
+  assert.equal((await exported()).title, "Updated board title");
+  await page.locator("#undo").focus();
+  await page.keyboard.press("Enter");
+  await ready();
   assert.deepEqual(await exported(), expected);
   const stale = await page.evaluate(async (key) => {
     const r = await (await fetch("/api/documents/" + key)).json();
@@ -181,6 +204,13 @@ try {
   await page.keyboard.press("Escape");
   assert.equal(await page.locator("#editor").evaluate((x) => x.open), false);
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.click("#settings");
+  await page.locator("#apply").focus();
+  await page.keyboard.press("Enter");
+  await page.waitForFunction(() => !document.getElementById("editor").open);
+  await ready();
+  assert.equal(await page.textContent("#status"), "No changes to apply.");
+  assert.equal(await page.locator("#undo").isEnabled(), false);
   await page.waitForTimeout(100);
   assert(
     await page.evaluate(

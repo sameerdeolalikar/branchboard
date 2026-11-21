@@ -45,6 +45,8 @@ This is a single-user local board, not a collaborative service. Dependencies are
 
 Dropping a task into its current column or dropping text that does not identify a task leaves the document and undo/redo history unchanged.
 
+Applying task edits or document settings that validate to the current values also preserves undo/redo history and the saved/unsaved state, including when surrounding whitespace is trimmed.
+
 Documents have at most 150 entries; the library supports 100 documents. Request/import size is bounded to 256 KB. Undo/redo is per-tab memory, not durable history. Export drafts before closing; there is no automatic crash recovery yet. Optimistic revisions reject stale saves, but merging conflicts is future work.
 
 New library saves omit the document ID or use `null`, with revision zero. An empty-string ID is rejected without creating a document or changing existing saved data.

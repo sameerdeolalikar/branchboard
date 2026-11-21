@@ -92,6 +92,10 @@ async function task(message, fn) {
 }
 async function change(next, message = "Changes applied. Save when ready.") {
   const checked = await api("validate", next);
+  if (JSON.stringify(checked.document) === JSON.stringify(doc)) {
+    say("No changes to apply.");
+    return;
+  }
   undo.push(clone(doc));
   undo = undo.slice(-50);
   redo = [];
