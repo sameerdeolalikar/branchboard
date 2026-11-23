@@ -89,6 +89,27 @@ class Tests(unittest.TestCase):
     def test_missing_dependency_rejected(self):
         d=self.fresh();d["tasks"][0]["depends"]=["missing"]
         with self.assertRaisesRegex(ValueError,"missing"):validate(d)
+    def test_missing_dependency_identifies_reference_and_allows_repair(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = Store(Path(tmp) / "library.sqlite3")
+            first = store.save({"revision": 0, "document": self.fresh()})
+            draft = copy.deepcopy(first)
+            draft["document"]["tasks"] = [
+                {"id": "ready", "title": "Shared title", "status": "done",
+                 "priority": "normal", "depends": []},
+                {"id": "waiting", "title": "Shared title", "status": "backlog",
+                 "priority": "normal", "depends": ["ready", "typo"]},
+            ]
+            with self.assertRaises(ValueError) as error:
+                store.save(draft)
+            self.assertEqual(str(error.exception),
+                             'Task "waiting" depends on missing task "typo".')
+            self.assertEqual(Store(store.path).get(first["id"]), first)
+            draft["document"]["tasks"][1]["depends"] = ["ready"]
+            saved = store.save(draft)
+            self.assertEqual(saved["revision"], 2)
+            self.assertEqual(saved["document"]["tasks"][1]["depends"], ["ready"])
+            self.assertEqual(Store(store.path).get(first["id"]), saved)
     def test_blocked_transition_and_reopen_dependency(self):
         d=self.fresh();d["tasks"][3]["status"]="active"
         with self.assertRaisesRegex(ValueError,"unfinished"):validate(d)

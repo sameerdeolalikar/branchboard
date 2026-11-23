@@ -47,7 +47,8 @@ def validate(raw):
         if key in done:return
         visiting.add(key)
         for d in lookup[key]["depends"]:
-            if d not in lookup:raise ValueError("A dependency refers to a missing task.")
+            if d not in lookup:
+                raise ValueError(f'Task "{key}" depends on missing task "{d}".')
             visit(d)
         visiting.remove(key);done.add(key)
     for key in lookup:visit(key)

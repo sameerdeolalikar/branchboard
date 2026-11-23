@@ -193,6 +193,18 @@ try {
   assert.match(await page.textContent("#error"), /Note/);
   await ready();
   assert.deepEqual(await exported(), expected);
+  const missingDependency = structuredClone(expected);
+  missingDependency.tasks[0].depends = ["missing-task"];
+  await page.setInputFiles("#import", {
+    name: "missing-dependency.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(missingDependency)),
+  });
+  await page.locator("#error:not([hidden])").waitFor();
+  assert.equal(await page.textContent("#error"),
+    `Task "${expected.tasks[0].id}" depends on missing task "missing-task".`);
+  await ready();
+  assert.deepEqual(await exported(), expected);
   await page.setInputFiles("#import", "examples/sample.json");
   await page.waitForFunction(
     () =>
