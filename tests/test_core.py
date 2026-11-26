@@ -89,6 +89,31 @@ class Tests(unittest.TestCase):
     def test_missing_dependency_rejected(self):
         d=self.fresh();d["tasks"][0]["depends"]=["missing"]
         with self.assertRaisesRegex(ValueError,"missing"):validate(d)
+    def test_cycle_identifies_loop_preserves_save_and_allows_repair(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = Store(Path(tmp) / "library.sqlite3")
+            first = store.save({"revision": 0, "document": self.fresh()})
+            for dependencies, message in [
+                ([[], ["middle"], []], "middle -> middle"),
+                ([["middle"], ["last"], ["middle"]], "middle -> last -> middle"),
+            ]:
+                with self.subTest(dependencies=dependencies):
+                    draft = copy.deepcopy(first)
+                    draft["document"]["tasks"] = [
+                        {"id": key, "title": "Shared title", "status": "backlog",
+                         "priority": "normal", "depends": deps}
+                        for key, deps in zip(["entry", "middle", "last"], dependencies)
+                    ]
+                    with self.assertRaises(ValueError) as error:
+                        store.save(draft)
+                    self.assertEqual(str(error.exception),
+                                     f"Dependency cycle detected: {message}.")
+                    self.assertEqual(Store(store.path).get(first["id"]), first)
+            draft["document"]["tasks"][2]["depends"] = []
+            saved = store.save(draft)
+            self.assertEqual(saved["revision"], 2)
+            self.assertEqual(Store(store.path).get(first["id"]), saved)
+            self.assertEqual(saved["document"]["tasks"][2]["depends"], [])
     def test_missing_dependency_identifies_reference_and_allows_repair(self):
         with tempfile.TemporaryDirectory() as tmp:
             store = Store(Path(tmp) / "library.sqlite3")

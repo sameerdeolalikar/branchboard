@@ -55,6 +55,8 @@ Task notes must be strings of at most 1,000 characters. Omitted notes and empty 
 
 Missing-dependency errors identify the referring task ID and the missing task ID so that broken references can be repaired, even when task titles are identical. Rejected imports and saves preserve the existing document.
 
+Dependency-cycle errors show the task IDs around the loop (for example, `draft -> review -> draft`) so the circular references can be repaired. Tasks leading into the loop are excluded from this path.
+
 ## Planned development
 
 [ROADMAP.md](ROADMAP.md) specifies approximately **62–92 hours** of proposed work with acceptance criteria. [QUALITY-PLAN.md](QUALITY-PLAN.md) describes representative review dimensions and transition cases. Estimates are future engineering effort, not completed hours or promised paid work. [CONTRIBUTING.md](CONTRIBUTING.md) explains contribution conventions.

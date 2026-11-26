@@ -41,16 +41,18 @@ def validate(raw):
         if not isinstance(deps,list) or any(not isinstance(v,str) for v in deps) or len(set(deps))!=len(deps):raise ValueError("Dependencies must be unique identifiers.")
         note = x.get("note", "")
         out["tasks"].append({"id":x["id"],"title":text(x.get("title"),"Task title"),"status":choice(x.get("status"),["backlog","active","done"],"status"),"priority":choice(x.get("priority"),["low","normal","high"],"priority"),"depends":deps,"note":text("—" if note == "" else note,"Note",1000)})
-    lookup={x["id"]:x for x in out["tasks"]};visiting=set();done=set()
+    lookup={x["id"]:x for x in out["tasks"]};visiting=[];done=set()
     def visit(key):
-        if key in visiting:raise ValueError("Dependency cycle detected.")
+        if key in visiting:
+            cycle = visiting[visiting.index(key):] + [key]
+            raise ValueError(f'Dependency cycle detected: {" -> ".join(cycle)}.')
         if key in done:return
-        visiting.add(key)
+        visiting.append(key)
         for d in lookup[key]["depends"]:
             if d not in lookup:
                 raise ValueError(f'Task "{key}" depends on missing task "{d}".')
             visit(d)
-        visiting.remove(key);done.add(key)
+        visiting.pop();done.add(key)
     for key in lookup:visit(key)
     for task in out["tasks"]:
         if task["status"] in ["active","done"] and any(lookup[d]["status"]!="done" for d in task["depends"]):

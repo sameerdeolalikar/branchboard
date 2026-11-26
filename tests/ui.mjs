@@ -44,7 +44,8 @@ try {
   await page.fill("#field-depends", "print");
   await page.click("#apply");
   await page.locator("#dialog-error:not([hidden])").waitFor();
-  assert.match(await page.textContent("#dialog-error"), /cycle/);
+  assert.equal(await page.textContent("#dialog-error"),
+    "Dependency cycle detected: brief -> print -> layout -> brief.");
   await page.click("#cancel");
   await page
     .getByRole("button", { name: "Edit Sketch the room layout", exact: true })
