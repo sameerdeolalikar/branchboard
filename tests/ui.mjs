@@ -36,7 +36,8 @@ try {
     });
   await blocked.getByRole("button", { name: "Start", exact: true }).click();
   await page.locator("#error:not([hidden])").waitFor();
-  assert.match(await page.textContent("#error"), /unfinished/);
+  assert.equal(await page.textContent("#error"),
+    'Task "print" cannot be active or done while dependencies are unfinished: layout, labels.');
   await ready();
   await page
     .getByRole("button", { name: "Edit Define the collection", exact: true })

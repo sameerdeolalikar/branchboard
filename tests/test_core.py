@@ -144,4 +144,35 @@ class Tests(unittest.TestCase):
         d=self.fresh();d["tasks"][1]["status"]="done";d["tasks"][2]["status"]="done";d["tasks"][3]["status"]="active"
         self.assertNotIn("print",analyze(validate(d))["blocked"])
 
+    def test_unfinished_dependencies_identified_and_save_can_retry(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = Store(Path(tmp) / "library.sqlite3")
+            document = {"version": 1, "title": "Dependency board", "tasks": [
+                {"id": key, "title": "Shared title", "status": status,
+                 "priority": "normal", "depends": deps}
+                for key, status, deps in [
+                    ("ready", "done", []),
+                    ("draft", "backlog", []),
+                    ("review", "active", []),
+                    ("publish", "backlog", ["ready", "draft", "review"]),
+                ]
+            ]}
+            first = store.save({"revision": 0, "document": document})
+            for status in ["active", "done"]:
+                with self.subTest(status=status):
+                    draft = copy.deepcopy(first)
+                    draft["document"]["tasks"][3]["status"] = status
+                    with self.assertRaises(ValueError) as error:
+                        store.save(draft)
+                    self.assertEqual(str(error.exception),
+                                     'Task "publish" cannot be active or done while '
+                                     'dependencies are unfinished: draft, review.')
+                    self.assertEqual(Store(store.path).get(first["id"]), first)
+            for task in draft["document"]["tasks"]:
+                task["status"] = "done"
+            saved = store.save(draft)
+            self.assertEqual(saved["revision"], 2)
+            self.assertEqual(Store(store.path).get(first["id"]), saved)
+            self.assertEqual(analyze(saved["document"])["blocked"], [])
+
 if __name__=="__main__":unittest.main()

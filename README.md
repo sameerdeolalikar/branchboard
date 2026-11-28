@@ -57,6 +57,8 @@ Missing-dependency errors identify the referring task ID and the missing task ID
 
 Dependency-cycle errors show the task IDs around the loop (for example, `draft -> review -> draft`) so the circular references can be repaired. Tasks leading into the loop are excluded from this path.
 
+Blocked status-change errors identify the task ID and list only its unfinished prerequisite IDs, so blockers can be located even when tasks share a title. Rejected saves preserve the saved document and revision.
+
 ## Planned development
 
 [ROADMAP.md](ROADMAP.md) specifies approximately **62–92 hours** of proposed work with acceptance criteria. [QUALITY-PLAN.md](QUALITY-PLAN.md) describes representative review dimensions and transition cases. Estimates are future engineering effort, not completed hours or promised paid work. [CONTRIBUTING.md](CONTRIBUTING.md) explains contribution conventions.

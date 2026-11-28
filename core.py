@@ -55,8 +55,12 @@ def validate(raw):
         visiting.pop();done.add(key)
     for key in lookup:visit(key)
     for task in out["tasks"]:
-        if task["status"] in ["active","done"] and any(lookup[d]["status"]!="done" for d in task["depends"]):
-            raise ValueError(f'{task["title"]} cannot be active or done while dependencies are unfinished.')
+        unfinished = [d for d in task["depends"] if lookup[d]["status"] != "done"]
+        if task["status"] in ["active", "done"] and unfinished:
+            raise ValueError(
+                f'Task "{task["id"]}" cannot be active or done while dependencies '
+                f'are unfinished: {", ".join(unfinished)}.'
+            )
     return out
 
 def analyze(doc):
